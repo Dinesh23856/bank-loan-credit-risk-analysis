@@ -1,0 +1,1 @@
+export default function Loading({label="Loading…"}){return <p role="status" className="loading">{label}</p>}

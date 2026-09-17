@@ -1,0 +1,2 @@
+import {useEffect,useState} from "react"; import {Navigate} from "react-router-dom"; import {me} from "../api/client"; import Loading from "./Loading";
+export default function ProtectedRoute({children}){const [state,setState]=useState("loading");useEffect(()=>{if(!localStorage.getItem("access_token")){setState("unauthenticated");return}me().then(()=>setState("ok")).catch(()=>{localStorage.removeItem("access_token");setState("unauthenticated")})},[]);return state==="loading"?<Loading/>:state==="ok"?children:<Navigate to="/login" replace/>}

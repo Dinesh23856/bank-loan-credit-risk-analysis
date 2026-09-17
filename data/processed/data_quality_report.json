@@ -1,0 +1,31 @@
+{
+  "loan_data.csv": {
+    "rows": 12000,
+    "columns": 29,
+    "missing_cells": 360,
+    "duplicate_customer_ids": 0,
+    "missing_by_column": {
+      "monthly_income": 120,
+      "payment_history": 120,
+      "credit_utilization": 120
+    },
+    "approval_rate": 0.2235,
+    "invalid_approved_gt_requested": 153
+  },
+  "credit_risk_data.csv": {
+    "rows": 12000,
+    "columns": 23,
+    "missing_cells": 360,
+    "duplicate_customer_ids": 0,
+    "missing_by_column": {
+      "monthly_income": 120,
+      "payment_history": 120,
+      "credit_utilization": 120
+    },
+    "risk_distribution": {
+      "High": 8949,
+      "Medium": 2603,
+      "Low": 448
+    }
+  }
+}

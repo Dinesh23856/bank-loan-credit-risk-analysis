@@ -1,0 +1,1 @@
+export default function ErrorMessage({message}){return message ? <p className="error" role="alert">{message}</p> : null}

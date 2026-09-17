@@ -1,0 +1,26 @@
+{
+  "name": "bank-loan-credit-risk-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "lucide-react": "0.468.0",
+    "react-router-dom": "7.18.4",
+    "recharts": "3.2.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "vite": "6.4.3"
+  },
+  "engines": {
+    "node": ">=20 <23",
+    "npm": ">=10 <12"
+  }
+}

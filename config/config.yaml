@@ -1,0 +1,85 @@
+random_seed: 42
+test_size: 0.20
+validation_size: 0.125
+thresholds:
+  approval_probability: 0.50
+  risk_high_probability: 0.50
+features:
+  loan_amount:
+    - age
+    - dependents
+    - education
+    - employment_type
+    - monthly_income
+    - annual_income
+    - monthly_debt
+    - debt_to_income_ratio
+    - savings
+    - bank_balance
+    - assets
+    - credit_history
+    - previous_loans
+    - previous_defaults
+    - payment_history
+    - credit_utilization
+    - credit_score
+    - loan_type
+    - requested_loan_amount
+    - loan_term
+    - collateral_value
+  loan_approval:
+    - age
+    - dependents
+    - education
+    - employment_type
+    - monthly_income
+    - annual_income
+    - monthly_debt
+    - debt_to_income_ratio
+    - savings
+    - bank_balance
+    - assets
+    - credit_history
+    - previous_loans
+    - previous_defaults
+    - payment_history
+    - credit_utilization
+    - credit_score
+    - loan_type
+    - requested_loan_amount
+    - loan_term
+    - collateral_value
+  credit_score:
+    - age
+    - dependents
+    - education
+    - employment_type
+    - monthly_income
+    - annual_income
+    - monthly_debt
+    - debt_to_income_ratio
+    - savings
+    - bank_balance
+    - assets
+    - credit_history
+    - previous_loans
+    - previous_defaults
+    - payment_history
+    - credit_utilization
+  credit_risk:
+    - age
+    - dependents
+    - education
+    - employment_type
+    - monthly_income
+    - annual_income
+    - monthly_debt
+    - debt_to_income_ratio
+    - savings
+    - bank_balance
+    - assets
+    - credit_history
+    - previous_loans
+    - previous_defaults
+    - payment_history
+    - credit_utilization

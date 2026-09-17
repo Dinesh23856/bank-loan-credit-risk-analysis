@@ -20,13 +20,46 @@ else:
     if DATABASE_URL and not DATABASE_URL.startswith("mysql+pymysql://"):
         raise RuntimeError("DATABASE_URL must use mysql+pymysql:// for this application.")
 
+connect_args = {}
+clean_db_url = DATABASE_URL
+
+if DATABASE_URL:
+    # Handle SSL configuration for PyMySQL (e.g. Aiven or remote cloud MySQL)
+    has_ssl_param = any(param in DATABASE_URL for param in ("ssl_mode", "ssl-mode", "ssl_ca", "ssl-ca"))
+    db_ssl_env = os.getenv("DB_SSL", "").lower() in ("true", "1", "yes", "required")
+
+    if has_ssl_param or db_ssl_env:
+        import ssl
+        clean_db_url = DATABASE_URL.split("?")[0]
+        ssl_ctx = ssl.create_default_context()
+
+        # Check for CA certificate via environment variable (file path or inline PEM data)
+        ca_cert_path = os.getenv("DB_SSL_CA_PATH", os.getenv("AIVEN_CA_PATH", "")).strip()
+        ca_cert_data = os.getenv("DB_SSL_CA_CERT", os.getenv("AIVEN_CA_CERT", "")).strip()
+
+        if ca_cert_path and os.path.exists(ca_cert_path):
+            ssl_ctx.load_verify_locations(cafile=ca_cert_path)
+            ssl_ctx.verify_mode = ssl.CERT_REQUIRED
+            ssl_ctx.check_hostname = True
+        elif ca_cert_data:
+            ssl_ctx.load_verify_locations(cadata=ca_cert_data)
+            ssl_ctx.verify_mode = ssl.CERT_REQUIRED
+            ssl_ctx.check_hostname = True
+        else:
+            # When no custom CA certificate is provided, enable TLS encryption
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+
+        connect_args["ssl"] = ssl_ctx
+
 engine = create_engine(
-    DATABASE_URL,
+    clean_db_url,
+    connect_args=connect_args,
     pool_pre_ping=True,
     pool_recycle=1800,
     pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
     max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
-) if DATABASE_URL else None
+) if clean_db_url else None
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False) if engine else None
 
 def get_db():

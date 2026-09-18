@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
         logger.warning("Failed to initialize SHAP during startup: %s", exc)
 
     if os.getenv("ENVIRONMENT", "development").lower() == "production":
-        database_url = os.getenv("DATABASE_URL", "").strip()
+        database_url = (os.getenv("DATABASE_URL") or os.getenv("AIVEN_DATABASE_URL") or "").strip().strip(' \t\r\n"\'')
         if database_url.startswith("mysql://"):
             database_url = "mysql+pymysql://" + database_url[len("mysql://"):]
         secret = os.getenv("JWT_SECRET_KEY", "")
@@ -64,6 +64,14 @@ async def validation_handler(request: Request, exc: RequestValidationError):
         loc = e.get("loc", ())
         errors.append({"field": str(loc[-1]) if loc else "request", "message": e.get("msg", "Invalid value")})
     return JSONResponse(status_code=422, content={"detail": "Request validation failed.", "errors": errors})
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled server exception: %s", exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error.", "error_type": type(exc).__name__, "message": str(exc)},
+    )
 
 production_origin = "https://bank-loan-credit-risk-analysis-frontend.onrender.com"
 dev_origins = [

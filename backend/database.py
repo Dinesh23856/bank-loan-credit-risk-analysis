@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # PRODUCTION DATABASE = MYSQL ONLY.
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+DATABASE_URL = (os.getenv("DATABASE_URL") or os.getenv("AIVEN_DATABASE_URL") or "").strip().strip(' \t\r\n"\'')
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 Base = declarative_base()
 
@@ -25,7 +25,7 @@ else:
         raise RuntimeError("DATABASE_URL must use mysql+pymysql:// for this application.")
 
 connect_args = {}
-clean_db_url = DATABASE_URL
+clean_db_url = DATABASE_URL.split("?")[0] if DATABASE_URL else ""
 
 if DATABASE_URL:
     # Handle SSL configuration for PyMySQL (e.g. Aiven or remote cloud MySQL)

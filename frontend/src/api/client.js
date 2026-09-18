@@ -1,6 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL;
-if (import.meta.env.PROD && !API_URL) throw new Error("VITE_API_URL is required in production.");
-const base = (API_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "https://bank-loan-credit-risk-analysis.onrender.com");
+const base = (API_URL || "").replace(/\/$/, "");
 
 export async function api(path, options = {}) {
   const controller = new AbortController();

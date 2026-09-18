@@ -24,7 +24,7 @@ services:
         value: "25"
 
   - type: static
-    name: bank-loan-credit-risk-web
+    name: bank-loan-credit-risk-analysis-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     rootDir: frontend

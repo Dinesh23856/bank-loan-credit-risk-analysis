@@ -70,7 +70,10 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("Unhandled server exception: %s", exc)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error.", "error_type": type(exc).__name__, "message": str(exc)},
+        content={
+            "detail": "An internal server error occurred. Please try again later.",
+            "error_type": type(exc).__name__
+        },
     )
 
 production_origin = "https://bank-loan-credit-risk-analysis-frontend.onrender.com"

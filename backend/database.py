@@ -24,8 +24,15 @@ else:
     if DATABASE_URL and not DATABASE_URL.startswith("mysql+pymysql://"):
         raise RuntimeError("DATABASE_URL must use mysql+pymysql:// for this application.")
 
-connect_args = {}
+connect_args = {
+    "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "10")),
+}
 clean_db_url = DATABASE_URL.split("?")[0] if DATABASE_URL else ""
+
+# Guard against accidental localhost/127.0.0.1 in production/cloud environments
+is_cloud = bool(os.getenv("RENDER") or os.getenv("RENDER_SERVICE_ID") or ENVIRONMENT == "production")
+if is_cloud and clean_db_url and ("localhost" in clean_db_url.lower() or "127.0.0.1" in clean_db_url):
+    raise RuntimeError("DATABASE_URL points to localhost/127.0.0.1 in production. A remote MySQL database (e.g. Aiven) is required.")
 
 if DATABASE_URL:
     # Handle SSL configuration for PyMySQL (e.g. Aiven or remote cloud MySQL)
@@ -63,6 +70,7 @@ engine = create_engine(
     connect_args=connect_args,
     pool_pre_ping=True,
     pool_recycle=1800,
+    pool_timeout=int(os.getenv("DB_POOL_TIMEOUT", "10")),
     pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
     max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
 ) if clean_db_url else None

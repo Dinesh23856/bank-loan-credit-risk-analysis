@@ -10,6 +10,10 @@ DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 Base = declarative_base()
 
+# Auto-normalize mysql:// to mysql+pymysql:// if provided (e.g. from standard Aiven Service URI)
+if DATABASE_URL.startswith("mysql://"):
+    DATABASE_URL = "mysql+pymysql://" + DATABASE_URL[len("mysql://"):]
+
 # Production startup must fail clearly if DATABASE_URL is missing or not mysql+pymysql://
 if ENVIRONMENT == "production":
     if not DATABASE_URL:
@@ -25,10 +29,12 @@ clean_db_url = DATABASE_URL
 
 if DATABASE_URL:
     # Handle SSL configuration for PyMySQL (e.g. Aiven or remote cloud MySQL)
-    has_ssl_param = any(param in DATABASE_URL for param in ("ssl_mode", "ssl-mode", "ssl_ca", "ssl-ca"))
+    url_lower = DATABASE_URL.lower()
+    is_aiven = "aivencloud.com" in url_lower
+    has_ssl_param = any(param in url_lower for param in ("ssl_mode", "ssl-mode", "sslmode", "ssl_ca", "ssl-ca", "sslca"))
     db_ssl_env = os.getenv("DB_SSL", "").lower() in ("true", "1", "yes", "required")
 
-    if has_ssl_param or db_ssl_env:
+    if is_aiven or has_ssl_param or db_ssl_env:
         import ssl
         clean_db_url = DATABASE_URL.split("?")[0]
         ssl_ctx = ssl.create_default_context()

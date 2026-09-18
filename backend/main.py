@@ -43,15 +43,14 @@ async def lifespan(app: FastAPI):
         logger.warning("Failed to initialize SHAP during startup: %s", exc)
 
     if os.getenv("ENVIRONMENT", "development").lower() == "production":
-        database_url = os.getenv("DATABASE_URL", "")
+        database_url = os.getenv("DATABASE_URL", "").strip()
+        if database_url.startswith("mysql://"):
+            database_url = "mysql+pymysql://" + database_url[len("mysql://"):]
         secret = os.getenv("JWT_SECRET_KEY", "")
-        origins = os.getenv("FRONTEND_ORIGINS", "")
         if not database_url.startswith("mysql+pymysql://"):
             raise RuntimeError("Production requires DATABASE_URL using mysql+pymysql://.")
         if len(secret) < 32:
             raise RuntimeError("Production requires JWT_SECRET_KEY of at least 32 characters.")
-        if not origins.strip():
-            raise RuntimeError("Production requires FRONTEND_ORIGINS.")
     yield
 
 app = FastAPI(title="Bank Loan & Customer Credit Risk API", version="4.0.0", lifespan=lifespan)
@@ -66,14 +65,23 @@ async def validation_handler(request: Request, exc: RequestValidationError):
         errors.append({"field": str(loc[-1]) if loc else "request", "message": e.get("msg", "Invalid value")})
     return JSONResponse(status_code=422, content={"detail": "Request validation failed.", "errors": errors})
 
-origins = [x.strip() for x in os.getenv("FRONTEND_ORIGINS", os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")).split(",") if x.strip()]
+production_origin = "https://bank-loan-credit-risk-analysis-frontend.onrender.com"
+dev_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+]
+env_origins = [x.strip() for x in os.getenv("FRONTEND_ORIGINS", os.getenv("FRONTEND_ORIGIN", "")).split(",") if x.strip()]
+origins = list(dict.fromkeys([production_origin] + env_origins + dev_origins))
+
 app.add_middleware(GZipMiddleware, minimum_size=100)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allow_headers=["Content-Type", "Accept", "Authorization"]
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
 )
 
 class ApplicantInput(BaseModel):

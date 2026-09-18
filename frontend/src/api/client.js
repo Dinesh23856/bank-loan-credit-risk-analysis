@@ -1,7 +1,7 @@
 const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:8000" : "https://bank-loan-credit-risk-analysis.onrender.com");
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://bank-loan-credit-risk-analysis.onrender.com";
 const base = (API_URL || "").replace(/\/$/, "");
 
 export async function api(path, options = {}) {

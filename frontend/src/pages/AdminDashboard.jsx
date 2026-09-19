@@ -141,17 +141,17 @@ export default function AdminDashboard() {
                   <td>{u.email}</td>
                   <td>
                     <select
-                      value={currentNorm === "admin" ? "admin" : currentNorm === "underwriter" ? "underwriter" : currentNorm === "risk_analyst" ? "risk_analyst" : "customer"}
+                      value={currentNorm === "admin" ? "ADMIN" : currentNorm === "underwriter" ? "UNDERWRITER" : currentNorm === "risk_analyst" ? "RISK_ANALYST" : "CUSTOMER"}
                       onChange={async (e) => {
                         const newRole = e.target.value;
                         try {
-                          await adminUpdateUserRole(u.id, {
+                          const updated = await adminUpdateUserRole(u.id, {
                             role: newRole,
-                            reason: `Assigned ${newRole.toUpperCase()} role via Admin Dashboard`
+                            reason: `Assigned ${newRole} role via Admin Dashboard`
                           });
                           setUsers(prev => ({
                             ...prev,
-                            items: prev.items.map(it => it.id === u.id ? { ...it, role: newRole } : it)
+                            items: prev.items.map(it => it.id === u.id ? { ...it, role: updated?.role || newRole } : it)
                           }));
                         } catch (err) {
                           alert(err.message || "Failed to update role");
@@ -167,10 +167,10 @@ export default function AdminDashboard() {
                         color: currentNorm === "admin" ? "#92400e" : currentNorm === "underwriter" ? "#1d4ed8" : currentNorm === "risk_analyst" ? "#6b21a8" : "#334155"
                       }}
                     >
-                      <option value="customer">CUSTOMER</option>
-                      <option value="underwriter">UNDERWRITER</option>
-                      <option value="risk_analyst">RISK_ANALYST</option>
-                      <option value="admin">ADMIN</option>
+                      <option value="CUSTOMER">CUSTOMER</option>
+                      <option value="UNDERWRITER">UNDERWRITER</option>
+                      <option value="RISK_ANALYST">RISK_ANALYST</option>
+                      <option value="ADMIN">ADMIN</option>
                     </select>
                   </td>
                   <td>{u.application_count}</td>

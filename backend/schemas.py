@@ -33,8 +33,26 @@ class UserResponse(BaseModel):
 
 class UserRoleUpdateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    role: Literal["CUSTOMER", "UNDERWRITER", "RISK_ANALYST", "ADMIN", "user", "admin"]
+    role: Literal[
+        "CUSTOMER", "UNDERWRITER", "RISK_ANALYST", "ADMIN",
+        "customer", "underwriter", "risk_analyst", "admin",
+        "user", "USER"
+    ]
     reason: Optional[str] = None
+
+    @field_validator("role")
+    @classmethod
+    def normalize_role(cls, v: str) -> str:
+        cleaned = (v or "").strip().upper()
+        if cleaned in ("USER", "CUSTOMER"):
+            return "CUSTOMER"
+        if cleaned in ("UNDERWRITER",):
+            return "UNDERWRITER"
+        if cleaned in ("RISK_ANALYST", "ANALYST"):
+            return "RISK_ANALYST"
+        if cleaned in ("ADMIN", "ADMINISTRATOR"):
+            return "ADMIN"
+        return cleaned
 
 class LoanApplicationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")

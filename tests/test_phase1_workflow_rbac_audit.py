@@ -184,6 +184,31 @@ def test_admin_role_reassignment(admin_token, rbac_users):
     assert audit_entry.before_value == "CUSTOMER"
     assert audit_entry.after_value == "UNDERWRITER"
 
+    # Regression test: Lowercase role variants from frontend Admin UI
+    for role_input, expected_role in [
+        ("risk_analyst", "RISK_ANALYST"),
+        ("customer", "CUSTOMER"),
+        ("underwriter", "UNDERWRITER"),
+        ("admin", "ADMIN"),
+        ("user", "CUSTOMER"),
+    ]:
+        resp = client.put(
+            f"/admin/users/{target_user_id}/role",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"role": role_input, "reason": f"Testing {role_input} assignment"}
+        )
+        assert resp.status_code == 200, f"Failed for role input {role_input}: {resp.text}"
+        assert resp.json()["role"] == expected_role
+
+    # Regression test: Invalid role returns 422 Request Validation Failed
+    bad_resp = client.put(
+        f"/admin/users/{target_user_id}/role",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"role": "SUPERUSER_INVALID", "reason": "Invalid role test"}
+    )
+    assert bad_resp.status_code == 422
+    assert "Request validation failed." in bad_resp.json()["detail"]
+
     # Revert back to CUSTOMER
     rev = client.put(
         f"/admin/users/{target_user_id}/role",

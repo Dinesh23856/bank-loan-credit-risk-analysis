@@ -179,17 +179,17 @@ export default function AdminAuditLogs() {
 
       {/* Logs Table */}
       <div className="card tablewrap">
-        <table>
+        <table style={{ width: "100%", minWidth: "850px", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th>Timestamp (UTC)</th>
-              <th>Action</th>
-              <th>Role</th>
-              <th>User ID</th>
-              <th>Resource</th>
-              <th>IP Address</th>
-              <th>Reason / Summary</th>
-              <th>Details</th>
+              <th style={{ whiteSpace: "nowrap", width: "14%" }}>Timestamp (UTC)</th>
+              <th style={{ whiteSpace: "nowrap", width: "12%" }}>Action</th>
+              <th style={{ whiteSpace: "nowrap", width: "8%" }}>Role</th>
+              <th style={{ whiteSpace: "nowrap", width: "7%" }}>User ID</th>
+              <th style={{ whiteSpace: "nowrap", width: "12%" }}>Resource</th>
+              <th style={{ whiteSpace: "nowrap", width: "11%" }}>IP Address</th>
+              <th style={{ width: "28%" }}>Reason / Summary</th>
+              <th style={{ whiteSpace: "nowrap", width: "8%", textAlign: "center" }}>Details</th>
             </tr>
           </thead>
           <tbody>
@@ -221,49 +221,55 @@ export default function AdminAuditLogs() {
                           borderRadius: "6px",
                           fontSize: "11px",
                           fontWeight: "700",
+                          whiteSpace: "nowrap",
                           ...getActionBadge(row.action)
                         }}>
                           {row.action}
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontSize: "12px", fontWeight: "600", color: "#334155" }}>
+                        <span style={{ fontSize: "12px", fontWeight: "600", color: "#334155", whiteSpace: "nowrap" }}>
                           {row.role || "SYSTEM"}
                         </span>
                       </td>
-                      <td style={{ fontSize: "12px", color: "#64748b" }}>
+                      <td style={{ fontSize: "12px", color: "#64748b", whiteSpace: "nowrap" }}>
                         {row.user_id ? `#${row.user_id}` : "—"}
                       </td>
-                      <td style={{ fontSize: "12px", color: "#334155" }}>
+                      <td style={{ fontSize: "12px", color: "#334155", whiteSpace: "nowrap" }}>
                         {row.resource_type ? `${row.resource_type}${row.resource_id ? ` (#${row.resource_id})` : ""}` : "—"}
                       </td>
-                      <td style={{ fontSize: "11px", fontFamily: "monospace", color: "#64748b" }}>
+                      <td style={{ fontSize: "11px", fontFamily: "monospace", color: "#64748b", whiteSpace: "nowrap" }}>
                         {row.ip_address || "—"}
                       </td>
-                      <td style={{ fontSize: "12px", color: "#334155", maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{
+                        fontSize: "12px",
+                        color: "#334155",
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        lineHeight: "1.4"
+                      }}>
                         {row.reason || (row.before_value && row.after_value ? `${row.before_value} → ${row.after_value}` : "—")}
                       </td>
-                      <td>
-                        {parsedMeta ? (
-                          <button
-                            onClick={() => setExpandedLogId(isExpanded ? null : row.id)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#2563eb",
-                              fontSize: "12px",
-                              fontWeight: "600",
-                              cursor: "pointer"
-                            }}
-                          >
-                            {isExpanded ? "Hide" : "Inspect"}
-                          </button>
-                        ) : (
-                          <span style={{ color: "#94a3b8", fontSize: "12px" }}>—</span>
-                        )}
+                      <td style={{ whiteSpace: "nowrap", textAlign: "center" }}>
+                        <button
+                          onClick={() => setExpandedLogId(isExpanded ? null : row.id)}
+                          style={{
+                            background: isExpanded ? "#e2e8f0" : "#eff6ff",
+                            border: "1px solid #bfdbfe",
+                            borderRadius: "6px",
+                            color: "#2563eb",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            padding: "4px 10px"
+                          }}
+                        >
+                          {isExpanded ? "Hide" : "Inspect"}
+                        </button>
                       </td>
                     </tr>
-                    {isExpanded && parsedMeta && (
+                    {isExpanded && (
                       <tr>
                         <td colSpan="8" style={{ background: "#f8fafc", padding: "12px 16px" }}>
                           <div style={{ fontSize: "11px", color: "#475569", marginBottom: "4px", fontWeight: "700" }}>
@@ -278,7 +284,19 @@ export default function AdminAuditLogs() {
                             fontSize: "11px",
                             overflowX: "auto"
                           }}>
-                            {JSON.stringify(parsedMeta, null, 2)}
+                            {JSON.stringify(parsedMeta || {
+                              log_id: row.id,
+                              action: row.action,
+                              role: row.role || "SYSTEM",
+                              user_id: row.user_id,
+                              resource_type: row.resource_type,
+                              resource_id: row.resource_id,
+                              ip_address: row.ip_address,
+                              reason: row.reason,
+                              before_value: row.before_value,
+                              after_value: row.after_value,
+                              timestamp: row.timestamp
+                            }, null, 2)}
                           </pre>
                         </td>
                       </tr>
